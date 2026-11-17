@@ -1,0 +1,38 @@
+{
+  "request_id": "demo:daily",
+  "device_intervals": {
+    "A": {
+      "batch_id": "lot1",
+      "stratum": "alpha",
+      "intervals": [
+        {
+          "start": 0,
+          "stop": 2,
+          "load": 3,
+          "failed": false
+        },
+        {
+          "start": 3,
+          "stop": 4,
+          "load": 5,
+          "failed": true
+        }
+      ]
+    },
+    "B": {
+      "batch_id": "lot1",
+      "stratum": "beta",
+      "intervals": [
+        {
+          "start": 0,
+          "stop": 2,
+          "load": [
+            2,
+            1
+          ],
+          "failed": false
+        }
+      ]
+    }
+  }
+}

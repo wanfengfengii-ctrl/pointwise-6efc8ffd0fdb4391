@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "python": "3.11",
+  "units": {
+    "time": "hour",
+    "load_exposure": "load-hour",
+    "failure_rate": "per-hour"
+  },
+  "commands": {
+    "verify": [
+      "python3.11",
+      "-B",
+      "run.py",
+      "verify"
+    ],
+    "demo": [
+      "python3.11",
+      "-B",
+      "run.py",
+      "demo",
+      "--db",
+      "demo.sqlite3"
+    ]
+  },
+  "samples": [
+    "examples/daily.json",
+    "examples/correction.json"
+  ],
+  "regressions": {
+    "daily": "tests/test_daily.py",
+    "records": "tests/test_records.py",
+    "cohorts": "tests/test_cohorts.py",
+    "corrections": "tests/test_corrections.py",
+    "persistence": "tests/test_persistence.py",
+    "publish": "tests/test_publish.py"
+  }
+}

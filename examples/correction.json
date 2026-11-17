@@ -1,0 +1,17 @@
+{
+  "request_id": "demo:correction",
+  "device_intervals": {
+    "A": {
+      "batch_id": "lot2",
+      "stratum": "gamma",
+      "intervals": [
+        {
+          "start": 0,
+          "stop": 2,
+          "load": 3,
+          "failed": false
+        }
+      ]
+    }
+  }
+}
