@@ -32,6 +32,8 @@
     "cohorts": "tests/test_cohorts.py",
     "corrections": "tests/test_corrections.py",
     "persistence": "tests/test_persistence.py",
-    "publish": "tests/test_publish.py"
+    "publish": "tests/test_publish.py",
+    "cox_contract": "tests/test_cox_contract.py",
+    "cox_audit": "tests/test_cox_audit.py"
   }
 }

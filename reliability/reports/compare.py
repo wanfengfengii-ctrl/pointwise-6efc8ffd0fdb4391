@@ -1,5 +1,6 @@
 from fractions import Fraction
 from reliability.reports.read import ReportReader
+from reliability.reports.cox_content import COX_BASIS
 
 
 class ReportComparator:
@@ -9,6 +10,8 @@ class ReportComparator:
     def compare(self, left_report_id, right_report_id):
         left = self.reader.read(left_report_id)
         right = self.reader.read(right_report_id)
+        if COX_BASIS in (left['basis'], right['basis']):
+            raise ValueError('cox reports do not support descriptive comparison')
         if left['basis'] != right['basis']:
             raise ValueError('incompatible descriptive basis')
         lrows = {row['stratum']: row for row in left['strata']}

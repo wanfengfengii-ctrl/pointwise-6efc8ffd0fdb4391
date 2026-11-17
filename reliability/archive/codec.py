@@ -1,4 +1,5 @@
 import json
+import math
 from fractions import Fraction
 
 
@@ -9,6 +10,8 @@ def _pack(value):
         return ['bool', value]
     if type(value) is int:
         return ['int', value]
+    if type(value) is float:
+        return ['float', value]
     if isinstance(value, Fraction):
         return ['fraction', value.numerator, value.denominator]
     if type(value) is str:
@@ -30,6 +33,9 @@ def _unpack(node):
     if tag in ('bool', 'int', 'str') and len(node) == 2:
         expected = {'bool': bool, 'int': int, 'str': str}[tag]
         if type(node[1]) is expected:
+            return node[1]
+    if tag == 'float' and len(node) == 2:
+        if type(node[1]) is float and math.isfinite(node[1]):
             return node[1]
     if tag == 'fraction' and len(node) == 3:
         n, d = node[1:]

@@ -67,6 +67,54 @@ def read_snapshot_rows(connection, cohort_id):
     return head[0], {k: decode_value(v) for k, v in members}
 
 
+def insert_risk_plan_rows(connection, cohort_id, revision, payload):
+    _require_write(connection)
+    return connection.execute(
+        'INSERT INTO risk_plans(cohort_id, revision_id, payload) VALUES (?, ?, ?)',
+        (cohort_id, revision, payload)).lastrowid
+
+
+def read_risk_plan_row(connection, plan_id):
+    if type(plan_id) is not int:
+        raise KeyError(plan_id)
+    row = connection.execute(
+        'SELECT cohort_id, revision_id, payload FROM risk_plans WHERE id=?',
+        (plan_id,)).fetchone()
+    if row is None:
+        raise KeyError(plan_id)
+    return {'cohort_id': row[0], 'revision': row[1], 'payload': row[2]}
+
+
+def insert_cox_report_rows(connection, header, body):
+    _require_write(connection)
+    report_id = connection.execute(
+        'INSERT INTO reports(cohort_id, revision_id, basis) VALUES (?, ?, ?)',
+        (header['cohort_id'], header['revision'], header['basis'])).lastrowid
+    connection.execute('INSERT INTO cox_report_bodies VALUES (?, ?)',
+                       (report_id, body))
+    return report_id
+
+
+def read_report_head(connection, report_id):
+    if type(report_id) is not int:
+        raise KeyError(report_id)
+    head = connection.execute(
+        'SELECT cohort_id, revision_id, basis FROM reports WHERE id=?',
+        (report_id,)).fetchone()
+    if head is None:
+        raise KeyError(report_id)
+    return {'cohort_id': head[0], 'revision': head[1], 'basis': head[2]}
+
+
+def read_cox_report_body(connection, report_id):
+    row = connection.execute(
+        'SELECT payload FROM cox_report_bodies WHERE report_id=?',
+        (report_id,)).fetchone()
+    if row is None:
+        raise ValueError('incomplete cox report body')
+    return row[0]
+
+
 def insert_report_rows(connection, header, body, strata):
     _require_write(connection)
     report_id = connection.execute(

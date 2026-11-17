@@ -75,6 +75,26 @@ with Archive.open("lab.sqlite3") as archive:
 
 Archive.open(path) 支持文件路径、Path和 :memory:；后者不能跨关闭恢复。close() 可重复调用，关闭后的 connection 访问抛 RuntimeError。connection 是供集成与存储诊断使用的 SQLite 连接；应用业务更正应通过 apply。写入辅助查询需要外层事务，不自行提交；不支持嵌套事务。
 
+## 分层时变 Cox 增量（V2）
+
+可选协变量 `x`、固定风险计划与分层 Efron 拟合的完整契约见 COX.md，交接不变量见 HANDOFF.md，独立高精度核账见 audit/cox_audit.py。新增公开入口：
+
+```python
+from reliability.cohorts.snapshots import CohortService
+from reliability.analysis.cox import CoxService
+
+cohorts = CohortService(archive)
+plan = cohorts.compile_risk(cohort_id)   # 编译并原子保存固定风险计划
+again = cohorts.load_risk(plan['plan_id'])  # 只读回独立副本
+report_id = CoxService(archive).fit_cox(plan['plan_id'])
+cox_report = ReportReader(archive).read(report_id)  # 同一 read 按 basis 分派
+```
+
+- 区间可额外携带 `x`（长度1或2，分量为非布尔整数或 Fraction，规范为 Fraction）；缺省 `x` 不补零、不借用 load，V1 行为完全保留。仅改 `x` 的同 ID 请求是冲突。run.decode_submission 接纳可选 x 数组。
+- compile_risk 限80设备、160区间、4分层，全部非空区间必须有同维 x；不合规抛 ValueError 且不留半份计划。空区间设备保留身份；全空队列 p=0。
+- 报告 basis 为 `stratified-efron-batch-v1`；有故障 status="ok"，无故障 status="no_events"（beta/information/covariance 为 None、log_likelihood=0.0、batch_scores=[]）。ReportComparator 遇 Cox 报告抛 ValueError。
+- 计划与报告各自整笔事务、不可变；发布失败整体回滚并可对同一 plan_id 重试。新增 `python3.11 -B run.py cox-demo --db cox_demo.sqlite3` 演示跨层批次、更正后重开旧计划。
+
 ## 数据与计算口径
 
 设备、批次、分层和请求ID是非空字符串。设备和区间字段完整且不得多传字段。时间单位为小时，区间为(start,stop]。时间、负载接受整数或 Fraction，不接受布尔值和浮点数；failed必须为bool。JSON样例的分数采用两个非布尔整数[分子,非零分母]，经 run.decode_submission 转换后调用API。数值不另加正负范围；每段必须start<stop。

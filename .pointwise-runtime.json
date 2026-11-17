@@ -15,5 +15,13 @@
     "demo",
     "--db",
     "demo.sqlite3"
+  ],
+  "cox_demo": [
+    "python3.11",
+    "-B",
+    "run.py",
+    "cox-demo",
+    "--db",
+    "cox_demo.sqlite3"
   ]
 }
